@@ -1,6 +1,6 @@
 import requests
-from bs4 import BeautifulSoup
 from fpdf import FPDF
+from bs4 import BeautifulSoup
 from ebooklib import epub
 
 class Main:
@@ -36,7 +36,7 @@ class Formatador:
 class Documento:
     def __init__(self, main, formatador=None):
         self.main = main
-        self.formatador = formatador if formatador else Formatador(main.tipo)
+        self.formatador = formatador if formatador else Formatador(self.main.tipo)
         self.content = self.carregar()
         self.content = self.formatador.formatar(self.content)
 
@@ -64,13 +64,23 @@ class Pdf(Documento):
 
     def salvar(self):
         pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)  # Garante que o conteúdo não ultrapasse a página
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         pdf.cell(0, 10, self.main.titulo, ln=True, align="C")
+        pdf.ln(10)  # Linha em branco para espaçamento
+
         for line in self.content.splitlines():
-            pdf.multi_cell(0, 10, line)
-        pdf.output(self.main.caminho)
-        print(f"Arquivo PDF salvo em: {self.main.caminho}")
+            try:
+                pdf.multi_cell(0, 10, line.encode('latin-1', errors='replace').decode('latin-1'))
+            except Exception as e:
+                print(f"Erro ao processar linha: {line}. Erro: {e}")
+
+        try:
+            pdf.output(self.main.caminho)
+            print(f"Arquivo PDF salvo em: {self.main.caminho}")
+        except Exception as e:
+            print(f"Erro ao salvar o PDF: {e}")
 
 class Epub(Documento):
     def __init__(self, main, formatador=None):
