@@ -22,7 +22,7 @@ class Formatador:
         elif self.tipo == "EPUB":
             return self.formatar_epub(content)
         else:
-            raise ValueError("Tipo de formato não suportado")
+            raise ValueError("Tipo não suportado")
 
     def formatar_pdf(self, content):
         return '\n'.join(line.strip() for line in content.splitlines() if line.strip())
@@ -64,12 +64,11 @@ class Pdf(Documento):
 
     def salvar(self):
         pdf = FPDF()
-        pdf.set_auto_page_break(auto=True, margin=15)  # Garante que o conteúdo não ultrapasse a página
+        pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         pdf.cell(0, 10, self.main.titulo, ln=True, align="C")
-        pdf.ln(10)  # Linha em branco para espaçamento
-
+        pdf.ln(10)
         for line in self.content.splitlines():
             try:
                 pdf.multi_cell(0, 10, line.encode('latin-1', errors='replace').decode('latin-1'))
@@ -100,14 +99,14 @@ class Epub(Documento):
 # Menu
 while True:
     print("\nMenu:")
-    print("1. Salvar conteúdo de um link em um arquivo.")
+    print("1. Salvar")
     print("2. Sair")
 
     escolha = input("Escolha uma opção: ")
 
     if escolha == "1":
         link = input("Digite o link: ")
-        caminho = input("Digite o caminho (inclua o nome do arquivo e seu tipo{PDF, TXT, EPUB}): ")
+        caminho = input("Digite o caminho (inclua o nome + {.PDF, .TXT, .EPUB}): ")
         tipo = caminho.split(".")[-1].upper()
         titulo = caminho.split("/")[-1].split(".")[0]
         main = Main(link, caminho, tipo, titulo)
@@ -119,11 +118,11 @@ while True:
         elif tipo == "EPUB":
             documento = Epub(main)
         else:
-            print("Tipo de arquivo não suportado.")
+            print("Tipo não suportado")
             continue
 
         documento.salvar()
 
     elif escolha == "2":
-        print("Saindo do programa.")
+        print("Saindo do programa")
         break
